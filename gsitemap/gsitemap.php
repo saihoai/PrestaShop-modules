@@ -41,7 +41,7 @@ class Gsitemap extends Module
 		$this->need_instance = 0;
 
 		parent::__construct();
-		
+
 		$this->displayName = $this->l('Google sitemap');
 		$this->description = $this->l('Generate your Google sitemap file');
 	}
@@ -556,10 +556,10 @@ class Gsitemap extends Module
 		$suppliers_id = Db::getInstance()->ExecuteS(
 			'SELECT s.`id_supplier` FROM `'._DB_PREFIX_.'supplier` s
 			INNER JOIN `'._DB_PREFIX_.'supplier_lang` sl ON s.`id_supplier` = sl.`id_supplier` '.
-			($this->tableColumnExists(_DB_PREFIX_.'supplier_shop') ? 'INNER JOIN `'._DB_PREFIX_.'supplier_shop` ss ON s.`id_supplier` = ss.`id_supplier`' : '').' 
+			($this->tableColumnExists(_DB_PREFIX_.'supplier_shop') ? 'INNER JOIN `'._DB_PREFIX_.'supplier_shop` ss ON s.`id_supplier` = ss.`id_supplier`' : '').'
 			WHERE s.`active` = 1 AND s.`id_supplier` > '.(int)$id_supplier.
-			($this->tableColumnExists(_DB_PREFIX_.'supplier_shop') ? ' AND ss.`id_shop` = '.(int)$this->context->shop->id : '').' 
-			AND sl.`id_lang` = '.(int)$lang['id_lang'].' 
+			($this->tableColumnExists(_DB_PREFIX_.'supplier_shop') ? ' AND ss.`id_shop` = '.(int)$this->context->shop->id : '').'
+			AND sl.`id_lang` = '.(int)$lang['id_lang'].'
 			ORDER BY s.`id_supplier` ASC'
 		);
 		foreach ($suppliers_id as $supplier_id)
@@ -627,23 +627,24 @@ class Gsitemap extends Module
 			' ORDER BY c.`id_cms` ASC'
 		);
 
-		foreach ($cmss_id as $cms_id)
-		{
-			$cms = new CMS((int)$cms_id['id_cms'], $lang['id_lang']);
-			$cms->link_rewrite = urlencode((is_array($cms->link_rewrite) ? $cms->link_rewrite[(int)$lang['id_lang']] : $cms->link_rewrite));
-			$url = $link->getCMSLink($cms, null, null, $lang['id_lang']);
+		if (is_array($cmss_id))
+			foreach ($cmss_id as $cms_id)
+			{
+				$cms = new CMS((int)$cms_id['id_cms'], $lang['id_lang']);
+				$cms->link_rewrite = urlencode((is_array($cms->link_rewrite) ? $cms->link_rewrite[(int)$lang['id_lang']] : $cms->link_rewrite));
+				$url = $link->getCMSLink($cms, null, null, $lang['id_lang']);
 
-			if (!$this->_addLinkToSitemap(
-				$link_sitemap, array(
-					'type' => 'cms',
-					'page' => 'cms',
-					'link' => $url,
-					'image' => false
-				), $lang['iso_code'], $index, $i, $cms_id['id_cms']
-			)
-			)
-				return false;
-		}
+				if (!$this->_addLinkToSitemap(
+					$link_sitemap, array(
+						'type' => 'cms',
+						'page' => 'cms',
+						'link' => $url,
+						'image' => false
+					), $lang['iso_code'], $index, $i, $cms_id['id_cms']
+				)
+				)
+					return false;
+			}
 
 		return true;
 	}
