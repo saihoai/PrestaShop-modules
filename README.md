@@ -1,0 +1,4 @@
+PrestaShop-modules
+==================
+
+Partners modules
